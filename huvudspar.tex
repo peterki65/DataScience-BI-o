@@ -1,0 +1,111 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[swedish]{babel}
+\usepackage[margin=25mm]{geometry}
+\usepackage{lmodern,amsmath,booktabs,tabularx,enumitem,xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlist{nosep,leftmargin=*}
+\newcommand{\skrivfalt}{\par\vspace{3mm}\hrule\vspace{6mm}}
+\title{Data Science \& Business Intelligence\\\large Ett fristående huvudspår i sjudagarsblock}
+\author{Personlig studieplan}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Ett praktiskt huvudspår för att förstå, bearbeta, analysera och presentera data med Excel, Power Query, Power BI, VBA, Python och statistik. Studierna organiseras i Block 001, Block 002 och så vidare. Varje block innehåller Dag 1--7 och är helt frikopplat från kalenderveckor. Planen är ett nytt förslag utifrån ämnesönskemålet; den är inte en ordagrann återgivning av ett tidigare kursmaterial.
+\end{abstract}
+\tableofcontents
+\newpage
+\section{Syfte och slutmål}
+Efter huvudspåret ska du kunna gå från en verksamhetsfråga till en kontrollerad analys och en begriplig rekommendation. Du ska kunna:
+\begin{itemize}
+\item strukturera tabeller, dokumentera datakällor och upptäcka kvalitetsproblem;
+\item använda Excel för beräkningar, uppslag, pivottabeller och visualisering;
+\item bygga återanvändbara dataflöden i Power Query;
+\item modellera data och skapa mått och rapporter i Power BI;
+\item automatisera avgränsade uppgifter med VBA och Python;
+\item använda beskrivande statistik och bedöma osäkerhet;
+\item skilja observation, antagande och slutsats samt redovisa analysens begränsningar;
+\item versionshantera källkod och dokumentation med Git och GitHub.
+\end{itemize}
+
+\section{Studietakt utan kalenderkoppling}
+Ett block består alltid av sju \emph{studiedagar}, inte av en kalendervecka. Dag 1 börjar när du väljer att börja. Pauser påverkar inte numreringen. En studiedag kan delas upp på flera tillfällen. Börja nästa block när föregående blocks grundmål är uppnådda.
+
+Riktvärdet är 60--90 minuter per studiedag: 15--20 minuter teori, 30--45 minuter övning, 10--15 minuter kontrollfrågor och 5--10 minuter logg och rättning. Anpassa tiden efter erfarenhet. Fördjupningsuppgifter är frivilliga.
+
+\section{Förkunskaper och arbetsmiljö}
+Grundläggande datorvana räcker för Block 001. Fördjupningsblock bygger vidare på tidigare block. Använd Excel och en miljö där Power Query finns tillgängligt. För VBA-övningar behövs Excel för skrivbordet. För Power BI-övningar används Power BI Desktop. Pythonövningarna börjar med standardbiblioteket; pandas tillkommer senare.
+
+Menynamn, funktionsspråk och tillgängliga funktioner kan skilja sig mellan installationer. Excel-exemplen i Block 001 använder svenska funktionsnamn och semikolon. DAX- och Pythonexempel använder engelska namn. Om ett verktyg saknas kan du genomföra beräkningarna i Excel och skriva ned arbetsflödet, men återkom sedan till den praktiska verktygsövningen innan du markerar den som färdig.
+
+Skapa en arbetsyta med kursmaterial, övningsdata, egna arbetsfiler och en studielogg. Behåll originaldata oförändrade och gör bearbetningar i en kopia eller ett dokumenterat dataflöde.
+
+\section{Progression: föreslagna block}
+Planen omfattar inledningsvis 16 block, alltså 112 studiedagar. Den kan förlängas eller kortas efter målen. Varje rad avser ett eget block med Dag 1--7.
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Block & Fokus och konkret resultat\\
+\midrule
+001 & Grunder: en sammanhängande försäljningsanalys i Excel, Power Query, Power BI och Python samt en första VBA-rutin.\\
+002 & Excel: tabeller, relativa och absoluta referenser, villkor, datum och uppslag. Resultat: en kontrollerad beräkningsmodell.\\
+003 & Excelanalys: pivottabeller, diagram och nyckeltal. Resultat: en beslutsrapport.\\
+004 & Power Query: datatyper, fel, nullvärden, sammanslagning och tillägg. Resultat: ett uppdaterbart dataflöde.\\
+005 & Datamodellering och SQL: nycklar, relationer, granularitet och grundläggande frågor. Resultat: en liten stjärnmodell.\\
+006 & Power BI: inläsning, relationer, filter och rapportstruktur. Resultat: en interaktiv rapport.\\
+007 & DAX: mått, filterkontext och kvoter. Resultat: dokumenterade nyckeltal med kontroller.\\
+008 & Statistik I: lägesmått, spridning, fördelningar och urval. Resultat: en beskrivande analys.\\
+009 & Python I: variabler, typer, villkor, loopar och funktioner. Resultat: ett läsbart analysprogram.\\
+010 & Python II: pandas, import, rensning och gruppering. Resultat: ett reproducerbart dataflöde.\\
+011 & Visualisering: diagramval, skalor, etiketter och berättande. Resultat: en rapport för en definierad mottagare.\\
+012 & VBA: objektmodellen, loopar, felhantering och avgränsad automatisering. Resultat: en dokumenterad makrorutin.\\
+013 & Statistik II: konfidensintervall, hypoteser, korrelation och regression. Resultat: en analys med osäkerhet och antaganden.\\
+014 & Data Science: problemformulering, baslinje, träning/test och informationsläckage. Resultat: en enkel utvärderad modell.\\
+015 & Git och GitHub: commits, grenar, ändringsgranskning och dokumentation. Resultat: ett versionshanterat analysprojekt.\\
+016 & Slutprojekt: en egen verksamhetsfråga från rådata till rekommendation. Resultat: dataflöde, rapport och metodbeskrivning.\\
+\bottomrule
+\end{tabularx}
+
+\section{Gemensam struktur för varje block}
+\subsection{Blockets inledning}
+Ange blocknummer, tema, förkunskaper, 3--5 mätbara lärandemål, verktyg, dataset och vad som ska lämnas in. Skriv även vilka avgränsningar som gäller.
+\subsection{Dag 1--7}
+Varje dag ska innehålla samma delar:
+\begin{enumerate}
+\item \textbf{Mål:} vad du ska kunna visa efter passet.
+\item \textbf{Teori:} begrepp, ett litet exempel och vanliga fallgropar.
+\item \textbf{Övningar:} först en guidad uppgift, sedan en självständig tillämpning.
+\item \textbf{Kontrollfrågor:} minst tre frågor om både metod och tolkning.
+\item \textbf{Leverans:} en fil, tabell, kodsnutt eller kort slutsats.
+\item \textbf{Facit:} kontrollvärden, lösningsförslag och förklaring; placeras efter uppgifterna.
+\item \textbf{Studielogg:} vad som fungerade, vad som behöver repeteras och nästa steg.
+\end{enumerate}
+En lämplig rytm är att introducera ämnet Dag 1, bygga färdigheter Dag 2--5, tillämpa dem Dag 6 och sammanfatta och kontrollera Dag 7. Ordningen kan anpassas till blockets ämne.
+
+\section{Kontroll och bedömning}
+En övning är klar när du både har ett korrekt resultat och kan förklara hur det togs fram. Jämför med facit först efter ett eget försök. Om svaret skiljer sig, undersök datatyper, urval, formelreferenser och definitioner innan du ändrar beräkningen.
+
+Ett block är klart när samtliga grundövningar är gjorda, minst 80 procent av kontrollfrågorna kan besvaras utan facit och resultatet kan återskapas från originaldata. Repetera de frågor du missar och försök igen. Procentsatsen är ett självstudiekriterium, inte ett formellt betyg.
+
+Granska varje leverans utifrån fyra aspekter: korrekthet, begriplighet, spårbarhet och självständighet. Ett till synes rimligt diagram är inte tillräckligt om underliggande totalsummor är fel.
+
+\section{Återanvändbar dagmall}
+\subsection*{Block \underline{\hspace{12mm}} -- Dag \underline{\hspace{8mm}}}
+\textbf{Tema och mål:}\skrivfalt
+\textbf{Teori och centrala begrepp:}\skrivfalt
+\textbf{Guidad övning:}\skrivfalt
+\textbf{Självständig övning:}\skrivfalt
+\textbf{Kontrollfrågor 1--3:}\skrivfalt
+\textbf{Leverans och kontrollvärden:}\skrivfalt
+\textbf{Facit och förklaring:}\skrivfalt
+\textbf{Studielogg och repetition:}\skrivfalt
+
+\section{Slutprojektets minimikrav}
+Välj en tydlig fråga, till exempel hur försäljningsmixen påverkar täckningsbidraget. Beskriv vilka beslut analysen ska stödja. Leverera originaldata eller en källbeskrivning, ett dokumenterat bearbetningsflöde, beräkningar med kontroller, en rapport med högst tre huvudslutsatser och en metodtext om begränsningar. Använd ett verktyg som huvudverktyg och ett annat för en oberoende kontroll.
+
+\section{Startpunkt}
+Börja med \texttt{block-001.tex}. Använd dess gemensamma dataset genom hela blocket. Dagarnas ordning följer färdigheterna och saknar koppling till veckodagar eller datum.
+\end{document}

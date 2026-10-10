@@ -1,0 +1,14 @@
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.pdf
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+~$*
+data/private/
+.env

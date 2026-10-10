@@ -1,0 +1,395 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[swedish]{babel}
+\usepackage[margin=25mm]{geometry}
+\usepackage{lmodern,amsmath,booktabs,tabularx,enumitem,xcolor,listings}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlist{nosep,leftmargin=*}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,frame=single}
+\newcommand{\dag}[2]{\clearpage\section{Dag #1 -- #2}}
+\title{Data Science \& Business Intelligence\\\large Block 001: från tabell till kontrollerad analys\\Dag 1--7}
+\author{Fristående självstudiematerial}
+\date{}
+\begin{document}
+\maketitle
+\textbf{Ingen kalenderkoppling.} Dagnumren anger studieordning. Du bestämmer när varje dag genomförs och kan dela upp ett pass på flera tillfällen.
+
+\textbf{Tidsram:} cirka 60--90 minuter per studiedag. Blocket är en orientering i hela arbetsflödet. Fördjupning följer i kommande block.
+
+\textbf{Lärandemål:} skapa en strukturerad tabell; beräkna och kontrollera omsättning och täckningsbidrag; beskriva data statistiskt; upprepa en bearbetning; presentera nyckeltal; kontrollera samma resultat i Python; automatisera en enkel kontroll i VBA.
+
+\textbf{Arbetssätt:} läs teorin, gör övningarna, besvara frågorna utan facit och rätta därefter. Facit finns samlat sist. Spara en kort studielogg varje dag.
+\tableofcontents
+
+\section{Gemensamt fall och övningsdata}
+Ett fiktivt företag säljer produkterna A och B i regionerna Nord och Syd. Frågan är: \emph{Hur fördelas omsättning och täckningsbidrag mellan regionerna och produkterna?} Alla belopp är i kronor och exklusive moms. Pris och kostnad avser en enhet. Kostnad är här enbart rörlig kostnad. Datasetet saknar datum och kan därför inte användas för att bedöma förändring över tid.
+
+Varje rad är en unik order med en produkt. I en verklig fil med flera rader per order skulle en radnyckel också behövas. Använd \texttt{data/forsaljning.csv} eller mata in tabellen nedan.
+\begin{center}
+\begin{tabular}{rrrrrr}
+\toprule
+OrderID & Region & Produkt & Antal & Pris & Kostnad\\
+\midrule
+1 & Nord & A & 2 & 100 & 60\\
+2 & Syd & A & 3 & 100 & 60\\
+3 & Nord & B & 1 & 200 & 120\\
+4 & Syd & B & 2 & 200 & 120\\
+5 & Nord & A & 4 & 100 & 60\\
+6 & Syd & B & 1 & 200 & 120\\
+7 & Nord & B & 3 & 200 & 120\\
+8 & Syd & A & 5 & 100 & 60\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Datakontrakt:} OrderID är ett unikt heltal; Region är Nord eller Syd; Produkt är A eller B; Antal är ett positivt heltal; Pris och Kostnad är icke-negativa tal. Saknade värden måste utredas, inte automatiskt ersättas med noll. Filen har rubrikrad, semikolon som separator och UTF-8 som teckenkodning.
+
+\textbf{Definitioner:}
+\[
+\text{Omsättning}=\text{Antal}\cdot\text{Pris},\qquad
+\text{Rörlig kostnad}=\text{Antal}\cdot\text{Kostnad}.
+\]
+\[
+\text{TB}=\text{Omsättning}-\text{Rörlig kostnad},\qquad
+\text{TB-marginal}=\frac{\text{TB}}{\text{Omsättning}}.
+\]
+TB betyder täckningsbidrag. Det ska täcka fasta kostnader och eventuellt ge vinst. Det är inte samma sak som slutlig vinst. För ett urval beräknas marginalen som summan av TB dividerad med summan av omsättningen.
+
+\dag{1}{Data, frågor och struktur}
+\subsection*{Mål}
+Förklara vad en rad representerar och skilja mellan en datakolumn och ett nyckeltal.
+\subsection*{Teori}
+En tabell behöver tydliga rubriker, konsekventa datatyper och en definierad observationsenhet. Region och Produkt är kategorier, medan Antal, Pris och Kostnad är numeriska variabler. OrderID är en identifierare: medelvärdet av identifieraren har ingen användbar affärstolkning.
+
+Business Intelligence sammanställer data för uppföljning och beslut. Data Science omfattar även statistisk analys och modellering. Båda behöver en tydlig fråga och kontrollerade data. Ett litet övningsdataset kan lära ut metoden men ger inte automatiskt stöd för slutsatser om hela verksamheten.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Importera CSV-filen i Excel, eller skriv in data. Kontrollera separator och datatyper. Skapa en Excel-tabell och ge den namnet \texttt{Forsaljning}.
+\item Kontrollera antal rader, unika OrderID och tillåtna kategorier. Dokumentera datakontraktet i ett blad som heter \texttt{Kontroll}.
+\item Skriv två frågor som kan besvaras av datasetet och en som kräver mer data. Ange vilken komplettering som behövs.
+\end{enumerate}
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Vad representerar en rad och varför behöver OrderID vara unikt här?
+\item Varför bör man inte tolka OrderID som en mätvariabel?
+\item Kan vi avgöra om försäljningen har ökat? Motivera.
+\end{enumerate}
+\textbf{Leverans:} arbetsbok med rådata, tabellnamn och tre dokumenterade frågor.
+
+\dag{2}{Excel: formler och avstämning}
+\subsection*{Mål}
+Beräkna omsättning, rörlig kostnad, TB och marginal utan manuellt inskrivna radresultat.
+\subsection*{Teori}
+Strukturerade tabellreferenser kopplar formler till kolumnnamn. En beräknad kolumn fylls genom tabellen. Procentsats är ett tal som formateras som procent; 0,4 visas som 40 procent. Summera belopp före kvotberäkning. Ett oviktat medelvärde av radmarginaler är i allmänhet inte totalmarginalen.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Lägg till kolumnerna \texttt{Omsattning}, \texttt{RorligKostnad}, \texttt{TB} och \texttt{Marginal} med formlerna nedan.
+\item Beräkna total omsättning, total kostnad och totalt TB med \texttt{SUMMA}. Beräkna totalmarginalen från totalsummorna.
+\item Skapa en pivottabell med Region som rader och summan av Omsattning och TB som värden. Kontrollera att pivottabellens totalsummor stämmer med tabellen.
+\end{enumerate}
+\begin{lstlisting}
+=[@Antal]*[@Pris]
+=[@Antal]*[@Kostnad]
+=[@Omsattning]-[@RorligKostnad]
+=OM([@Omsattning]=0;0;[@TB]/[@Omsattning])
+=SUMMA(Forsaljning[Omsattning])
+\end{lstlisting}
+Noll i marginalformeln är en vald presentationsregel vid noll omsättning. En kvot med noll nämnare är egentligen odefinierad och bör dokumenteras som sådan i en verklig analys. Inga rader i övningsdata har noll omsättning.
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Vad blir omsättning och TB för OrderID 4?
+\item Hur beräknar du marginalen för hela datasetet?
+\item Varför räcker det inte att diagrammet ser rimligt ut?
+\end{enumerate}
+\textbf{Leverans:} beräknade kolumner, totalsummor och en avstämd pivottabell.
+
+\dag{3}{Statistik och tolkning}
+\subsection*{Mål}
+Beräkna medelvärde, median och variationsbredd samt beskriva vad de betyder.
+\subsection*{Teori}
+Medelvärdet är summan dividerad med antalet observationer. Medianen är mitten i en sorterad lista; vid jämnt antal används medelvärdet av de två mittersta värdena. Variationsbredd är maximum minus minimum. Medelvärde och median beskriver läget, medan variationsbredd beskriver en enkel aspekt av spridningen.
+
+Om observationerna ses som ett stickprov skattas variansen med
+\[
+s^2=\frac{\sum_{i=1}^{n}(x_i-\bar{x})^2}{n-1}.
+\]
+Standardavvikelsen är \(s=\sqrt{s^2}\). Om data i stället utgör hela den population du avser att beskriva används nämnaren \(n\). Vi använder stickprovsdefinitionen i den frivilliga uppgiften. Ingen normalfördelning behövs för att beräkna dessa beskrivande mått.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Beräkna medelvärde och median för omsättning per order med \texttt{MEDEL} och \texttt{MEDIAN}.
+\item Beräkna minimum, maximum och variationsbredd med \texttt{MIN} och \texttt{MAX}.
+\item Skriv två meningar om en typisk order och en mening om varför åtta order inte räcker för en säker generalisering.
+\item Frivilligt: beräkna standardavvikelsen med stickprovsdefinitionen och förklara enheten.
+\end{enumerate}
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Varför kan median och medelvärde skilja sig åt?
+\item Vad händer med medelvärdet om en extra order på 5\,000 kr läggs till?
+\item Bevisar en högre regional omsättning att regionen har effektivare säljare?
+\end{enumerate}
+\textbf{Leverans:} statistikruta och en kort tolkning med begränsningar.
+
+\dag{4}{Power Query: ett upprepningsbart dataflöde}
+\subsection*{Mål}
+Importera data, ange datatyper och skapa beräknade kolumner som kan uppdateras.
+\subsection*{Teori}
+Power Query beskriver bearbetningen som en följd av steg. Originalkällan och bearbetningen hålls isär. När källan ändras kan samma steg köras igen. Ett uppdaterbart flöde måste fortfarande kontrolleras: nya kategorier, saknade kolumner och felaktiga datatyper kan påverka resultatet.
+
+Dubbletter ska bedömas utifrån radens identitet. Två order med samma produkt och antal kan vara korrekta. Ta därför inte bort rader enbart för att vissa värden är lika.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Läs in originalfilen med Power Query. Ange separatorn semikolon och kontrollera rubrikraden.
+\item Ange OrderID och Antal som heltal, Region och Produkt som text samt Pris och Kostnad som numeriska värden. Kontrollera fel och tomma värden.
+\item Lägg till anpassade kolumner \texttt{Omsattning} med \texttt{[Antal] * [Pris]}, \texttt{RorligKostnad} med \texttt{[Antal] * [Kostnad]} och \texttt{TB} med \texttt{[Omsattning] - [RorligKostnad]}.
+\item Läs in till ett separat blad, jämför radantal och totalsummor med Dag 2 och uppdatera en gång till.
+\item Frivilligt: använd en kopia av källfilen, lägg till OrderID 9, Nord, A, 1, 100, 60 och uppdatera. Anteckna förändringen och återgå sedan till originalfilen inför Dag 5.
+\end{enumerate}
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Vad är skillnaden mellan att ändra en cell och att dokumentera ett transformationssteg?
+\item Varför är texten ``100'' ett möjligt problem i en numerisk kolumn?
+\item När är det rimligt att ta bort en dubblett?
+\end{enumerate}
+\textbf{Leverans:} en uppdaterbar fråga med namngivna steg och dokumenterad avstämning.
+
+\dag{5}{Power BI: mått och rapport}
+\subsection*{Mål}
+Skapa en liten rapport där filter ändrar nyckeltalen korrekt.
+\subsection*{Teori}
+En beräknad kolumn lagrar ett radresultat i modellen. Ett mått beräknas i den aktuella filterkontexten, exempelvis Region = Nord. En kvot bör normalt byggas av mått så att numerator och denominator använder samma urval. Blocket använder en enda tabell; relationer och stjärnmodell kommer senare.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Importera originalfilen i Power BI Desktop, ge tabellen namnet \texttt{Forsaljning} och kontrollera datatyperna.
+\item Skapa måtten nedan. Exemplen använder kommatecken som DAX-separator; anpassa separatorn om din miljö kräver det.
+\item Skapa kort för omsättning, TB och marginal, ett stapeldiagram med region och omsättning samt en tabell med produkt, omsättning och TB. Formatera marginalen som procent.
+\item Lägg till ett utsnitt för Region. Kontrollera Nord, Syd och båda regionerna mot Dag 2. Rensa filtret när du är klar.
+\end{enumerate}
+\begin{lstlisting}
+Omsattning = SUMX(Forsaljning,
+    Forsaljning[Antal] * Forsaljning[Pris])
+RorligKostnad = SUMX(Forsaljning,
+    Forsaljning[Antal] * Forsaljning[Kostnad])
+TB = [Omsattning] - [RorligKostnad]
+Marginal = DIVIDE([TB], [Omsattning])
+\end{lstlisting}
+Skapa ett mått i taget. \texttt{DIVIDE} returnerar som standard ett tomt värde när nämnaren är noll.
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Vad menas med filterkontext i den här rapporten?
+\item Varför använder vi kvoten mellan två summor för marginalen?
+\item Vilken region har högst omsättning och vilken produkt har högst TB?
+\end{enumerate}
+\textbf{Leverans:} en rapportfil med tre nyckeltal, regionfilter och avstämda produktvärden.
+
+\dag{6}{Python: en oberoende beräkningskontroll}
+\subsection*{Mål}
+Läsa en CSV-fil och återskapa totalsummor och regionala resultat i ett program.
+\subsection*{Teori}
+CSV-data läses först som text. Numeriska fält behöver omvandlas innan beräkning. En loop kan bearbeta varje rad; en dictionary kan samla resultat per region. En oberoende implementation hjälper dig att upptäcka fel i den första analysen, men gemensamt felaktiga antaganden kan fortfarande ge samma fel i båda verktygen.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Spara koden nedan som \texttt{kontroll.py} i projektroten och kör den därifrån med Python 3. Den använder enbart standardbiblioteket.
+\item Förklara import, filöppning, typomvandling, loop och regiongruppering med egna ord.
+\item Lägg till en kontroll som stoppar programmet om Antal är noll eller negativt. Lägg sedan till ett separat totalvärde för sålda enheter.
+\end{enumerate}
+\begin{lstlisting}[language=Python]
+import csv
+from pathlib import Path
+
+source = Path(__file__).resolve().parent / "data" / "forsaljning.csv"
+with source.open(encoding="utf-8-sig", newline="") as f:
+    rows = list(csv.DictReader(f, delimiter=";"))
+
+revenue = 0
+cost = 0
+regions = {}
+for row in rows:
+    quantity = int(row["Antal"])
+    price = int(row["Pris"])
+    unit_cost = int(row["Kostnad"])
+    sales = quantity * price
+    variable_cost = quantity * unit_cost
+    revenue += sales
+    cost += variable_cost
+    region = row["Region"]
+    if region not in regions:
+        regions[region] = {"revenue": 0, "tb": 0}
+    regions[region]["revenue"] += sales
+    regions[region]["tb"] += sales - variable_cost
+
+print("Orders:", len(rows))
+print("Revenue:", revenue)
+print("Variable cost:", cost)
+print("TB:", revenue - cost)
+print("Margin:", (revenue - cost) / revenue if revenue else None)
+for region in sorted(regions):
+    print(region, regions[region])
+assert len(rows) == 8
+assert revenue == 2800
+assert revenue - cost == 1120
+\end{lstlisting}
+Kontrollvärdena i \texttt{assert} gäller just originaldatasetet. Vid en avsiktlig ändring av data måste förväntningarna omprövas. Heltalsomvandlingen passar detta dataset; decimalbelopp kräver en annan hantering.
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Varför behöver Antal omvandlas med \texttt{int}?
+\item Vilken del av programmet gör grupperingen per region?
+\item Vad bevisar det, och vad bevisar det inte, när Python och Excel ger samma totalsumma?
+\end{enumerate}
+\textbf{Leverans:} program, sparat resultat och förklaring av minst en datakontroll.
+
+\dag{7}{VBA, sammanfattning och blockkontroll}
+\subsection*{Mål}
+Automatisera en avgränsad avstämning och presentera resultatet med tydliga begränsningar.
+\subsection*{Teori}
+VBA använder Excels objektmodell: arbetsbok, kalkylblad, tabell och kolumn. \texttt{ThisWorkbook} avser arbetsboken där koden ligger. \texttt{Option Explicit} kräver deklarerade variabler och hjälper till att upptäcka stavfel. Makrot nedan läser resultat och visar en kontrollruta; det ändrar inga dataceller.
+\subsection*{Övningar}
+\begin{enumerate}
+\item Använd arbetsboken från Dag 2. Döp bladet med tabellen till \texttt{Data}; tabellen ska heta \texttt{Forsaljning}, med kolumnerna \texttt{Omsattning} och \texttt{TB}. Spara en kopia som \texttt{.xlsm}.
+\item Lägg in koden i en standardmodul i VBA-editorn och kör \texttt{KontrolleraForsaljning}. Kör egen, granskad kod i en miljö där makron är tillåtna.
+\item Skriv en rapport på högst en sida: fråga, metod, tre resultat, en begränsning och ett förslag på ytterligare data.
+\item Gör blockkontrollen nedan utan att läsa facit. Rätta, repetera och gör om de delar som saknas.
+\end{enumerate}
+\begin{lstlisting}
+Option Explicit
+
+Sub KontrolleraForsaljning()
+    Dim lo As ListObject
+    Dim oms As Double
+    Dim tb As Double
+    On Error GoTo Fel
+    Set lo = ThisWorkbook.Worksheets("Data").ListObjects("Forsaljning")
+    If lo.DataBodyRange Is Nothing Then
+        MsgBox "Tabellen saknar datarader."
+        Exit Sub
+    End If
+    Application.Calculate
+    oms = Application.WorksheetFunction.Sum( _
+        lo.ListColumns("Omsattning").DataBodyRange)
+    tb = Application.WorksheetFunction.Sum( _
+        lo.ListColumns("TB").DataBodyRange)
+    MsgBox "Omsattning: " & Format(oms, "0.00") & vbCrLf & _
+           "TB: " & Format(tb, "0.00")
+    Exit Sub
+Fel:
+    MsgBox "Kontrollen misslyckades: " & Err.Description
+End Sub
+\end{lstlisting}
+\subsection*{Kontrollfrågor}
+\begin{enumerate}
+\item Varför används \texttt{ThisWorkbook} i makrot?
+\item Vilken nytta ger \texttt{Option Explicit}?
+\item Varför ska TB inte beskrivas som företagets slutliga vinst?
+\end{enumerate}
+\subsection*{Blockkontroll}
+\begin{enumerate}
+\item Redovisa total omsättning, rörlig kostnad, TB och marginal.
+\item Redovisa omsättning och TB per region och per produkt.
+\item Förklara medelvärde, median och variationsbredd med värden från datasetet.
+\item Beskriv hur din Power Query-bearbetning kan uppdateras och kontrolleras.
+\item Ge en slutsats som stöds av data och en som data inte räcker till för.
+\end{enumerate}
+\textbf{Leverans:} makroarbetsbok, en kort rapport och en logg med vad du behöver repetera. Blocket är klart när grundövningarna är genomförda, minst 80 procent av kontrollfrågorna besvaras utan facit och resultaten kan återskapas från originaldata.
+
+\clearpage
+\section{Facit och lösningsförslag}
+\subsection{Gemensamma kontrollvärden}
+\begin{center}
+\begin{tabular}{rrrrr}
+\toprule
+OrderID & Omsättning & Rörlig kostnad & TB & Marginal\\
+\midrule
+1 & 200 & 120 & 80 & 40\%\\
+2 & 300 & 180 & 120 & 40\%\\
+3 & 200 & 120 & 80 & 40\%\\
+4 & 400 & 240 & 160 & 40\%\\
+5 & 400 & 240 & 160 & 40\%\\
+6 & 200 & 120 & 80 & 40\%\\
+7 & 600 & 360 & 240 & 40\%\\
+8 & 500 & 300 & 200 & 40\%\\
+\midrule
+Totalt & 2\,800 & 1\,680 & 1\,120 & 40\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+Antal order är 8 och antal sålda enheter är 21.
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Grupp & Enheter & Omsättning & TB & Marginal\\
+\midrule
+Nord & 10 & 1\,400 & 560 & 40\%\\
+Syd & 11 & 1\,400 & 560 & 40\%\\
+Produkt A & 14 & 1\,400 & 560 & 40\%\\
+Produkt B & 7 & 1\,400 & 560 & 40\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Dag 1}
+Det finns åtta rader och åtta unika OrderID. Inga värden bryter mot datakontraktet. Två möjliga frågor är omsättning per region och TB per produkt. En fråga om försäljningsökning kräver åtminstone datum och jämförbara perioder.
+
+\textbf{Kontrollfrågor:} (1) En rad är en order med en produkt; unik identitet gör det möjligt att upptäcka dubblering. (2) OrderID är en etikett, inte ett mätvärde. (3) Nej, inga datum eller jämförelseperioder finns.
+
+\subsection{Dag 2}
+Se kontrolltabellerna ovan. Totalmarginalen är \(1120/2800=0{,}4=40\%\). Alla radmarginaler råkar vara lika i detta dataset, men det är inte ett generellt skäl att ta deras oviktade medelvärde.
+
+\textbf{Kontrollfrågor:} (1) Order 4 ger 400 kr i omsättning och 160 kr i TB. (2) Summa TB dividerad med summa omsättning. (3) Fel i källor, filter eller formler kan döljas av ett till synes rimligt diagram; avstämning behövs.
+
+\subsection{Dag 3}
+Sorterade omsättningar är 200, 200, 200, 300, 400, 400, 500 och 600 kr. Medelvärdet är 350 kr; medianen är \((300+400)/2=350\) kr. Minimum är 200 kr, maximum 600 kr och variationsbredden 400 kr. Kvadratsumman av avvikelser från medelvärdet är 160\,000. Stickprovsstandardavvikelsen blir \(\sqrt{160000/7}\approx151{,}19\) kr. Populationens standardavvikelse för exakt dessa åtta order blir \(\sqrt{160000/8}\approx141{,}42\) kr.
+
+\textbf{Kontrollfrågor:} (1) Medelvärdet påverkas mer av extrema värden; medianen styrs av mittenpositionerna. (2) Det nya medelvärdet blir \((2800+5000)/9\approx866{,}67\) kr. (3) Nej, omsättning säger inte i sig något om resurser, kundunderlag eller effektivitet. Här har regionerna dessutom samma omsättning.
+
+\subsection{Dag 4}
+Originalflödet ger åtta rader, 2\,800 kr i omsättning och 1\,120 kr i TB. En ny order enligt extrauppgiften ger nio rader, 2\,900 kr i omsättning, 1\,740 kr i rörlig kostnad och 1\,160 kr i TB. Marginalen förblir 40 procent. Nord får 1\,500 kr i omsättning och 600 kr i TB. Återställ originalkällan och uppdatera innan nästa dag.
+
+\textbf{Kontrollfrågor:} (1) Ett transformationssteg kan upprepas och granskas; en manuell celländring behöver egen dokumentation. (2) Text kan orsaka fel eller felaktig tolkning i numeriska operationer och sortering. (3) När samma observation har registrerats flera gånger och borttagningen stöds av en verifierad identitetsregel.
+
+\subsection{Dag 5}
+Rapporten ska utan filter visa 2\,800 kr, 1\,120 kr och 40 procent. Nord och Syd visar vardera 1\,400 kr och 560 kr. Produkterna A och B visar också vardera 1\,400 kr och 560 kr.
+
+\textbf{Kontrollfrågor:} (1) Måtten beräknas för de rader som återstår efter rapportens filter. (2) Kvoten mellan summor tar hänsyn till omsättningens vikt; oviktade radkvoter gör i allmänhet inte det. (3) Regionerna delar förstaplatsen i omsättning, och produkterna delar förstaplatsen i TB.
+
+\subsection{Dag 6}
+Programmet skriver Orders: 8, Revenue: 2800, Variable cost: 1680, TB: 1120 och Margin: 0.4. Regionsammanställningen ger 1400 och 560 för både Nord och Syd. Samtliga tre \texttt{assert}-kontroller passerar med originaldata.
+
+Lägg efter typomvandlingen in följande kontroll:
+\begin{lstlisting}[language=Python]
+    if quantity <= 0:
+        raise ValueError("Antal must be positive")
+\end{lstlisting}
+Initiera \texttt{units = 0} före loopen, lägg \texttt{units += quantity} i loopen och skriv ut värdet efteråt. Resultatet ska vara 21. Testa kontrollen på en separat datakopia med Antal = 0: programmet ska avbrytas med ett fel.
+
+\textbf{Kontrollfrågor:} (1) CSV-läsaren ger text; \texttt{int} gör heltalsberäkning möjlig. (2) Dictionaryn \texttt{regions} och de två summeringarna med region som nyckel. (3) Överensstämmelse stärker kontrollen av implementationen men garanterar inte att affärsdefinitionerna eller källan är rätt.
+
+\subsection{Dag 7 och blockkontroll}
+Makrot visar omsättning 2800 och TB 1120, med decimalformat enligt lokal inställning. Om tabellen eller kolumnnamnen saknas visas ett felmeddelande. Ett felmeddelande är inte en godkänd avstämning. En tom tabell ger ett separat meddelande.
+
+\textbf{Kontrollfrågor:} (1) Koden pekar på den arbetsbok där makrot finns, även om en annan arbetsbok är aktiv. (2) Variabler måste deklareras; stavfel i variabelnamn kan upptäckas före körning. (3) Fasta kostnader och andra resultatposter ingår inte i TB.
+
+\textbf{Blockkontroll:} fråga 1--3 rättas mot tabellerna och Dag 3 ovan. För fråga 4 ska svaret innehålla källfil, dokumenterade steg, uppdatering och kontroll av radantal och totalsummor. För fråga 5 är en stödd slutsats att båda regionerna har samma omsättning och TB i de åtta orderna. En slutsats om tillväxt eller framtida lönsamhet stöds inte av dessa data.
+
+\textbf{Exempel på rapporttext:} De åtta orderna ger en omsättning på 2\,800 kr och ett täckningsbidrag på 1\,120 kr, motsvarande 40 procent. Regionerna bidrar lika mycket till omsättning och TB. Produkt A säljs i dubbelt så många enheter som B, men produkterna ger samma omsättning och TB. Datasetet saknar datum, fasta kostnader och information om hur orderna valts ut. Komplettera med datum och ett större, definierat urval för att analysera utveckling över tid.
+
+\section{Studielogg och övergång till Block 002}
+För varje dag: anteckna vad du gjorde, vilka kontroller som stämde, en sak du kan förklara och en sak att repetera. Spara dina egna svar före rättningen.
+
+\begin{tabularx}{\textwidth}{@{}lXXX@{}}
+\toprule
+Dag & Genomfört & Kontrollresultat & Repetition\\
+\midrule
+1 & & & \\[7mm]
+2 & & & \\[7mm]
+3 & & & \\[7mm]
+4 & & & \\[7mm]
+5 & & & \\[7mm]
+6 & & & \\[7mm]
+7 & & & \\[7mm]
+\bottomrule
+\end{tabularx}
+
+Nästa block fördjupar Excel: referenser, villkor, datum och uppslag. Starta Block 002 när grunduppgifterna i Block 001 är klara. Starten bestäms av ditt lärande, inte av kalendern.
+\end{document}

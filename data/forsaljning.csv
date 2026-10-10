@@ -1,0 +1,9 @@
+OrderID;Region;Produkt;Antal;Pris;Kostnad
+1;Nord;A;2;100;60
+2;Syd;A;3;100;60
+3;Nord;B;1;200;120
+4;Syd;B;2;200;120
+5;Nord;A;4;100;60
+6;Syd;B;1;200;120
+7;Nord;B;3;200;120
+8;Syd;A;5;100;60
